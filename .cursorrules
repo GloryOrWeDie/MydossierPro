@@ -1,0 +1,12 @@
+# RentProof Project Rules
+
+- Use TypeScript strict mode
+- Use Next.js 14 App Router
+- Use Tailwind CSS for styling
+- Use Supabase for database and storage
+- Use Stripe for payments
+- Always include error handling
+- Always include loading states
+- Mobile responsive design
+- Clean, modern UI with lots of white space
+- Primary color: #2563EB (blue-600)
