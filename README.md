@@ -1,4 +1,4 @@
-# RentProof
+# MydossierPro (RentProof)
 
 A platform that helps tenants create professional rental application dossiers.
 
