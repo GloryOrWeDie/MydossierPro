@@ -3,6 +3,8 @@ import { createSupabaseAdmin } from '@/lib/supabase';
 import { CreateTenantInput } from '@/lib/types';
 import { z } from 'zod';
 
+const FREE_TIER_LIMIT = 3;
+
 const createTenantSchema = z.object({
   email: z.string().trim().email('Invalid email address'),
   full_name: z.string().trim().min(2, 'Full name must be at least 2 characters'),
@@ -25,37 +27,40 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, full_name, phone, city } = validationResult.data;
+    const emailLower = email.trim().toLowerCase();
 
     const supabase = createSupabaseAdmin();
 
-    // Check if email already exists
-    const { data: existingTenant, error: checkError } = await supabase
+    // Count existing dossiers for this email (free tier limit = 3)
+    const { count, error: countError } = await supabase
       .from('tenants')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+      .select('*', { count: 'exact', head: true })
+      .eq('email', emailLower);
 
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking existing tenant:', checkError);
+    if (countError) {
+      console.error('Error counting tenants:', countError);
       return NextResponse.json(
-        { error: 'Failed to check existing tenant' },
+        { error: 'Failed to check dossier limit' },
         { status: 500 }
       );
     }
 
-    if (existingTenant) {
-      // Return existing tenant ID
-      return NextResponse.json({
-        tenantId: existingTenant.id,
-        email,
-      });
+    const used = count ?? 0;
+    if (used >= FREE_TIER_LIMIT) {
+      return NextResponse.json(
+        {
+          error: `Limite gratuite atteinte : vous avez déjà ${FREE_TIER_LIMIT} dossiers pour cette adresse. Passez à Pro pour en créer plus.`,
+          code: 'FREE_TIER_LIMIT',
+        },
+        { status: 403 }
+      );
     }
 
-    // Create new tenant
+    // Always create a new tenant (new dossier)
     const { data: tenant, error } = await supabase
       .from('tenants')
       .insert({
-        email,
+        email: emailLower,
         full_name,
         phone: phone || null,
         city,
@@ -66,6 +71,16 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating tenant:', error);
+      // Unique constraint on email: DB may not have migration yet; treat as limit reached
+      if (error.code === '23505') {
+        return NextResponse.json(
+          {
+            error: `Limite gratuite atteinte : vous avez déjà ${FREE_TIER_LIMIT} dossiers pour cette adresse. Passez à Pro pour en créer plus.`,
+            code: 'FREE_TIER_LIMIT',
+          },
+          { status: 403 }
+        );
+      }
       return NextResponse.json(
         { error: error.message || 'Failed to create tenant record' },
         { status: 500 }

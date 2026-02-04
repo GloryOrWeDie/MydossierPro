@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Check, Upload, Link as LinkIcon, Share2, Clock, Shield, Zap, Star } from 'lucide-react'
+import ExampleModal from '@/components/ExampleModal'
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
+  const [showExample, setShowExample] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -25,12 +27,6 @@ export default function LandingPage() {
             </Link>
             <Link href="#features" className="text-dark-light hover:text-dark transition-colors">
               Features
-            </Link>
-            <Link href="/login" className="text-dark-light hover:text-dark transition-colors">
-              Login
-            </Link>
-            <Link href="/upgrade" className="text-gray-700 hover:text-teal-600 font-medium transition-colors">
-              Upgrade to Pro
             </Link>
             <Link href="/create" className="px-6 py-2.5 bg-coral-500 text-white rounded-lg font-semibold hover:bg-coral-600 transition-all hover:shadow-coral">
               Get Started Free
@@ -83,6 +79,12 @@ export default function LandingPage() {
                   Create Free Dossier
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
+                <button 
+                  onClick={() => setShowExample(true)}
+                  className="px-8 py-4 bg-white text-gray-700 rounded-xl font-semibold text-lg hover:bg-gray-50 border-2 border-gray-200 transition-all"
+                >
+                  See Example
+                </button>
               </div>
 
               {/* Trust Indicators */}
@@ -406,9 +408,6 @@ export default function LandingPage() {
                 <li><Link href="#how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
                 <li><Link href="#features" className="hover:text-white transition-colors">Features</Link></li>
                 <li><Link href="/create" className="hover:text-white transition-colors">Get Started</Link></li>
-                <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
-                <li><Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link></li>
-                <li><Link href="/upgrade" className="hover:text-white transition-colors">Upgrade to Pro</Link></li>
               </ul>
             </div>
 
@@ -435,6 +434,12 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Example Modal */}
+      <ExampleModal 
+        isOpen={showExample} 
+        onClose={() => setShowExample(false)} 
+      />
     </div>
   )
 }

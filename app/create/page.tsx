@@ -10,17 +10,9 @@ export default function CreatePage() {
             <Link href="/" className="text-2xl font-bold text-blue-600">
               DossierPro
             </Link>
-            <div className="flex items-center gap-6">
-              <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Home
-              </Link>
-              <Link href="/login" className="text-gray-600 hover:text-gray-900 transition-colors">
-                Login
-              </Link>
-              <Link href="/upgrade" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                Upgrade to Pro
-              </Link>
-            </div>
+            <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+              Home
+            </Link>
           </div>
         </div>
       </nav>

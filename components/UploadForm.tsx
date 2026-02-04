@@ -460,8 +460,15 @@ export default function UploadForm() {
               </div>
             )}
 
-            <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-              Continue to Upload Documents
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              isLoading={isLoading}
+              className="w-full"
+              disabled={usage?.isBlocked === true}
+            >
+              {usage?.isBlocked ? 'Limite atteinte (3 dossiers)' : 'Continue to Upload Documents'}
             </Button>
           </form>
         )}

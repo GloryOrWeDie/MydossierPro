@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createSupabaseAdmin } from '@/lib/supabase';
 import { generateSlug } from '@/lib/utils';
-import { PRO_VALIDITY_DAYS } from '@/lib/constants';
 import Stripe from 'stripe';
 
 export const runtime = 'nodejs';
@@ -47,35 +46,7 @@ export async function POST(request: NextRequest) {
     try {
       const supabase = createSupabaseAdmin();
 
-      // Pro upgrade: metadata type === 'pro_upgrade', user_id in metadata
-      if (session.metadata?.type === 'pro_upgrade' && session.metadata?.user_id) {
-        const userId = session.metadata.user_id;
-        const proExpiresAt = new Date();
-        proExpiresAt.setDate(proExpiresAt.getDate() + PRO_VALIDITY_DAYS);
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert(
-            {
-              id: userId,
-              is_pro: true,
-              pro_expires_at: proExpiresAt.toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: 'id' }
-          );
-
-        if (profileError) {
-          console.error('Error updating profile for Pro:', profileError);
-          return NextResponse.json(
-            { error: 'Failed to activate Pro' },
-            { status: 500 }
-          );
-        }
-        return NextResponse.json({ received: true });
-      }
-
-      // Dossier payment: find tenant by session_id
+      // Find tenant by session_id
       const { data: tenant, error: tenantError } = await supabase
         .from('tenants')
         .select('id, full_name, stripe_session_id')

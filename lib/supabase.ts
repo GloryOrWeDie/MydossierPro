@@ -1,6 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { createServerClient, createBrowserClient } from '@supabase/ssr';
-import type { NextRequest } from 'next/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -9,29 +7,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// Client-side Supabase client (uses cookies so API routes can read session)
+// Client-side Supabase client
 export const createSupabaseClient = () => {
-  if (typeof window !== 'undefined') {
-    return createBrowserClient(supabaseUrl, supabaseAnonKey);
-  }
   return createClient(supabaseUrl, supabaseAnonKey);
-};
-
-// Server-side Supabase client for API routes: reads session from request cookies
-export const createSupabaseServer = (request: NextRequest) => {
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set() {
-        // No-op in Route Handler: cannot write cookies on request
-      },
-      remove() {
-        // No-op
-      },
-    },
-  });
 };
 
 // Server-side Supabase client (with service role for admin operations)
